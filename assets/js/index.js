@@ -25,7 +25,15 @@ function loadMusic(indexNumb) {
 //Função para dar Play
 function playMusic() {
     wrapper.classList.add("paused");
+    playPauseBtn.querySelector("i").innerText = "pause";
     mainAudio.play();
+}
+
+//Função para dar Pause
+function pauseMusic() {
+    wrapper.classList.remove("paused");
+    playPauseBtn.querySelector("i").innerText = "play_arrow";
+    mainAudio.pause();
 }
 
 //Ação para dar play e pause na musica
