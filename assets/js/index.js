@@ -13,11 +13,12 @@ musicList = wrapper.querySelector(".music-list");
 showMoreBtn = wrapper.querySelector("#more-music");
 hideMusicBtn = musicList.querySelector("#close");
 
-let musicIndex = 2;
+let musicIndex = Math.floor(Math.random() * allMusic.length + 1);
 
 //Chama a função para carregar a musica quando a janela for carregada
 window.addEventListener("load", () => {
   loadMusic(musicIndex);
+  playingNow();
 });
 //Função para carregar a musica
 function loadMusic(indexNumb) {
@@ -50,6 +51,7 @@ function nextMusic() {
   }
   loadMusic(musicIndex);
   playMusic();
+  playingNow();
 }
 
 //Função para mudar para a musica anterior
@@ -61,6 +63,7 @@ function prevMusic() {
   }
   loadMusic(musicIndex);
   playMusic();
+  playingNow();
 }
 
 //Ação para dar play e pause na musica
@@ -68,6 +71,7 @@ playPauseBtn.addEventListener("click", () => {
   const isMusicPaused = wrapper.classList.contains("paused");
   // Se a musica estiver pausada, então ela vai tocar
   isMusicPaused ? pauseMusic() : playMusic();
+  playingNow();
 });
 
 //Ação para mudar para a música seguinte
@@ -148,6 +152,7 @@ mainAudio.addEventListener("ended", () => {
     musicIndex = randomIndex;
     loadMusic(randomIndex);
     playMusic();
+    playingNow();
   } else if (getText === "repeat_one") {
     playMusic();
   } else if (getText === "repeat") {
@@ -170,13 +175,17 @@ const ulTag = wrapper.querySelector("ul");
 
 //Criar as li's com as músicas de acordo com o array
 for (let i = 0; i < allMusic.length; i++) {
-  let liTag = `<li li-index="${i}">
+  let liTag = `<li li-index="${i + 1}">
                   <div class="row">
                       <span>${allMusic[i].name}</span>
                       <p>${allMusic[i].artist}</p>
                     </div>
-                    <audio class="${allMusic[i].src}" src="./assets/mp3/${allMusic[i].src}.mp3"></audio>
-                    <span id="${allMusic[i].src}" class="audio-duration">3:40</span>
+                    <audio class="${allMusic[i].src}" src="./assets/mp3/${
+    allMusic[i].src
+  }.mp3"></audio>
+                    <span id="${
+                      allMusic[i].src
+                    }" class="audio-duration">3:40</span>
                   </li>`;
   ulTag.insertAdjacentHTML("beforeend", liTag);
 
@@ -193,11 +202,37 @@ for (let i = 0; i < allMusic.length; i++) {
       totalSeconds = `0${totalSeconds}`;
     }
     liAudioDuration.innerText = `${totalMinutes}:${totalSeconds}`;
+    liAudioDuration.setAttribute(
+      "t-duration",
+      `${totalMinutes}:${totalSeconds}`
+    );
   });
 }
 
 const allLiTags = ulTag.querySelectorAll("li");
-for (let j=0; j<allLiTags.length; j++) {
-  allLiTags[j].setAttribute("onclick", "clicked(this)");
+function playingNow() {
+  for (let j = 0; j < allLiTags.length; j++) {
+    let audioTag = allLiTags[j].querySelector(".audio-duration");
 
+    if (allLiTags[j].classList.contains("playing")) {
+      allLiTags[j].classList.remove("playing");
+      let adDuration = audioTag.getAttribute("t-duration");
+      audioTag.innerText = adDuration;
+    }
+
+    if (allLiTags[j].getAttribute("li-index") == musicIndex) {
+      allLiTags[j].classList.add("playing");
+      audioTag.innerText = "Tocando";
+    }
+
+    allLiTags[j].setAttribute("onclick", "clicked(this)");
+  }
+}
+
+function clicked(e) {
+  let getLiIndex = e.getAttribute("li-index");
+  musicIndex = getLiIndex;
+  loadMusic(musicIndex);
+  playMusic();
+  playingNow();
 }
